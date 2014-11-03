@@ -51,7 +51,6 @@
                          0)
                        ) 2))
          (menu-y (+ (- (line-number-at-pos (window-start)) 2) (/ (- (window-height) menu-height) 2)))
-         (menu-pos (save-excursion (artist-move-to-xy menu-x menu-y) (point)))
          (popup-items
           (-map (lambda (x)
                   (popup-make-item
@@ -59,7 +58,7 @@
                    :value x)) popup-list))
          (selected (popup-menu*
                     popup-items
-                    :point menu-pos
+                    :point (point)
                     :height menu-height
                     :isearch t
                     :scroll-bar t

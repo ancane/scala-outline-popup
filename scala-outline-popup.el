@@ -27,23 +27,28 @@
 (require 'dash)
 (require 'popup)
 
+(defun scala-outline-tags ()
+  (let ((tags-list nil))
+    (save-excursion
+      (goto-char (point-max))
+      (while (re-search-backward "^[^\n\\/(*]*\\(class\\|trait\\|object\\|type\\|def\\|implicit[ \t]+val\\)[ \t]+\\([^\n]+\\)$" nil t)
+        (setq tags-list
+              (cons
+               (list
+                (buffer-substring-no-properties (point) (line-end-position))
+                (line-number-at-pos))  tags-list))))
+    tags-list))
+
+(outline-popup)
 
 (defun scala-outline-popup (&optional file)
   (interactive)
   (let* (
-         (scala-re "/^[^\n\\/(*]*\\(class\\|trait\\|object\\|type\\|def\\)[ \t]+\\([^\n]+\\)/\1/")
-         (shell-string
-          (shell-command-to-string
-           (format "etags -f - --regex=\"%s\" %s" scala-re (if file file (buffer-file-name)))))
-         (tags-list
-          (cdr (-remove (lambda (x) (string-equal "" x))
-                         (split-string shell-string "\n"))))
-         (file-name-str (car tags-list))
+         (tags-list (scala-outline-tags))
          (popup-list
-          (-map (lambda (x) (list (scala-outline-trim-popup-item (car x)) (car (cdr x))))
-                (-remove (lambda (x) (not x))
-                         (-map (lambda (x)
-                                 (scala-outline-popup-parse-etag x)) (cdr tags-list)))))
+          (-map (lambda (x)
+                  (list (scala-outline-trim-popup-item (car x)) (car (cdr x))))
+                tags-list))
          (menu-height (min 15 (length popup-list) (- (window-height) 4)))
          (menu-x (/ (- fill-column
                        (if popup-list
@@ -72,12 +77,6 @@
     (forward-char)
     )
   )
-
-(defun scala-outline-popup-parse-etag (x)
-  (when (string-match "^\\(.*?\\)\^?\^A\^A\\([0-9]+\\),\\([0-9]+\\)$" x)
-    (list
-     (match-string 1 x)
-     (string-to-number (match-string 2 x)))))
 
 (defun scala-outline-trim-popup-item (x)
   (let ((trimmed (car (s-slice-at "\\([ \t]*\\(extends\\|[[]\\|\(\\|{\\)\\)" x))))

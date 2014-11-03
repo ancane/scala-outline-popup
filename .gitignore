@@ -1,3 +1,10 @@
+# Emacs
+*~
+*#
+.#*
+TAGS
+.dir-locals.el
+
 # Compiled
 *.elc
 

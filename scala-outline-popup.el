@@ -39,8 +39,6 @@
                 (line-number-at-pos))  tags-list))))
     tags-list))
 
-(outline-popup)
-
 (defun scala-outline-popup (&optional file)
   (interactive)
   (let* (

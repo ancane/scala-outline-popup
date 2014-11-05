@@ -3,10 +3,10 @@
 ;; Copyright (C) 2014 <igor.shimko@gmail.com>
 
 ;; Author: Igor Shymko <igor.shimko@gmail.com>
-;; URL: https://github.com/ancane/markdown-preview-mode
-;; Keywords: scala, summary, outline, popup
-
 ;; Version: 0.1
+;; Package-Requires: ((popup "0.5.0") (scala-mode2 "0.22"))
+;; Keywords: scala, structure, summary
+;; URL: https://github.com/ancane/scala-outline-popup.el
 
 ;; This file is not part of GNU Emacs.
 
@@ -41,18 +41,10 @@
                 (line-number-at-pos))  tags-list))))
     tags-list))
 
-(defun scala-outline:forward-modifiers ()
-  "Move forward over any modifiers."
-  (save-match-data
-    (while (scala-syntax:looking-at scala-syntax:modifiers-re)
-      (scala-syntax:forward-sexp)
-      (when (scala-syntax:looking-at "[[]")
-        (forward-list)))))
-
 (defun scala-outline-tag-end (tag-re)
   (save-excursion
     (beginning-of-line)
-    (scala-outline:forward-modifiers)
+    (scala-syntax:forward-modifiers)
     (re-search-forward tag-re nil t)
     (scala-syntax:forward-sexp)
     (point)))

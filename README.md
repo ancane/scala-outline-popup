@@ -9,8 +9,8 @@ Keeps indentation of all the items. List is filterable. `Enter` on an item jumps
 
 ## Dependencies
 
-* [popup](#https://github.com/auto-complete/popup-el)
-* [scala-mode](#https://github.com/hvesalai/scala-mode2)
+* [popup](https://github.com/auto-complete/popup-el)
+* [scala-mode](https://github.com/hvesalai/scala-mode2)
 
 ## Installation
 

@@ -1,10 +1,10 @@
-;;; scala-outline-popup.el --- scala file structure outline popup.
+;;; scala-outline-popup.el --- scala file summary popup.
 
 ;; Copyright (C) 2014 <igor.shimko@gmail.com>
 
 ;; Author: Igor Shymko <igor.shimko@gmail.com>
 ;; URL: https://github.com/ancane/markdown-preview-mode
-;; Keywords: scala, outline, popup
+;; Keywords: scala, summary, outline, popup
 
 ;; Version: 0.1
 

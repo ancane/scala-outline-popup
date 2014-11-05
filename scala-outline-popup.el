@@ -23,43 +23,42 @@
 
 (eval-when-compile (require 'cl))
 
-(require 's)
-(require 'dash)
 (require 'popup)
+(require 'scala-mode2)
 
 (defun scala-outline-tags ()
-  (let ((tags-list nil))
+  (let ((tags-list nil)
+        (tag-re "\\b\\(class\\|trait\\|object\\|type\\|def\\|implicit[ \t]+val\\)\\b"))
     (save-excursion
       (goto-char (point-max))
-      (while (re-search-backward "^[^\n\\/(*]*\\(\\bclass\\b\\|\\btrait\\b\\|\\bobject\\b\\|\\btype\\b\\|\\bdef\\b\\|\\bimplicit[ \t]+val\\b\\)[ \t]+\\([^\n]+\\)$" nil t)
+      (while (re-search-backward (concat "^[^\n\\/(*]*" tag-re "[ \t]+\\([^\n]+\\)$") nil t)
         (setq tags-list
               (cons
                (list
-                (buffer-substring-no-properties (point) (line-end-position))
+                (buffer-substring-no-properties (point) (scala-outline-tag-end tag-re))
                 (line-number-at-pos))  tags-list))))
     tags-list))
 
+(defun scala-outline-tag-end (tag-re)
+  (save-excursion
+    (scala-syntax:forward-modifiers)
+    (re-search-forward tag-re nil t)
+    (scala-syntax:forward-sexp)
+    (point)))
+
+;;;###autoload
 (defun scala-outline-popup (&optional file)
   (interactive)
   (if (equal major-mode 'scala-mode)
       (let* (
-             (tags-list (scala-outline-tags))
-             (popup-list
-              (-map (lambda (x)
-                      (list (scala-outline-trim-popup-item (car x)) (car (cdr x))))
-                    tags-list))
+             (popup-list (scala-outline-tags))
              (menu-height (min 15 (length popup-list) (- (window-height) 4)))
-             (menu-x (/ (- fill-column
-                           (if popup-list
-                               (apply 'max (mapcar (lambda (x) (length (car x))) popup-list))
-                             0)
-                           ) 2))
-             (menu-y (+ (- (line-number-at-pos (window-start)) 2) (/ (- (window-height) menu-height) 2)))
-             (popup-items
-              (-map (lambda (x)
-                      (popup-make-item
-                       (car x)
-                       :value x)) popup-list))
+             (popup-items (mapcar (lambda (x)
+                                    (popup-make-item
+                                     (car x)
+                                     :value x))
+                                  popup-list))
+
              (selected (popup-menu*
                         popup-items
                         :point (point)
@@ -73,20 +72,8 @@
         (goto-line (car (cdr selected)))
         (search-forward (car selected))
         (re-search-backward "[ \t]")
-        (forward-char)
-        )
-    (message "Not in scala mode")
-    )
-  )
-
-(defun scala-outline-trim-popup-item (x)
-  (let ((trimmed (car (s-slice-at "\\([ \t]*\\(extends\\|[[]\\|\(\\|{\\)\\)" x))))
-    (if (string-match "^\\(.*def[ \t]+.+\\)\\(:\\|[ ]+=\\).+$" trimmed)
-        (match-string 1 trimmed)
-      trimmed
-      )
-    )
-  )
+        (forward-char))
+    (message "Not in scala mode")))
 
 (provide 'scala-outline-popup)
 

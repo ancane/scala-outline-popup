@@ -56,7 +56,7 @@
     (point)))
 
 ;;;###autoload
-(defun scala-outline-popup (&optional file)
+(defun scala-outline-popup ()
   (interactive)
   (if (equal major-mode 'scala-mode)
       (let* (

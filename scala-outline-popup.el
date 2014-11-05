@@ -6,6 +6,8 @@
 ;; URL: https://github.com/ancane/markdown-preview-mode
 ;; Keywords: scala, outline, popup
 
+;; Version: 0.1
+
 ;; This file is not part of GNU Emacs.
 
 ;; This program is free software; you can redistribute it and/or modify

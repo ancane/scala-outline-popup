@@ -1,4 +1,4 @@
-;;; scala-outline-popup.el --- scala file summary popup.
+;;; scala-outline-popup.el --- scala file summary popup
 
 ;; Copyright (C) 2014 <igor.shimko@gmail.com>
 

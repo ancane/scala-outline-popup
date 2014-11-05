@@ -31,7 +31,7 @@
         (tag-re "\\b\\(class\\|trait\\|object\\|type\\|def\\|implicit[ \t]+val\\)\\b"))
     (save-excursion
       (goto-char (point-max))
-      (while (re-search-backward (concat "^[^\n\\/(*]*" tag-re "[ \t]+\\([^\n]+\\)$") nil t)
+      (while (re-search-backward (concat "^[^\n\\/*]*" tag-re "[ \t]+\\([^\n]+\\)$") nil t)
         (setq tags-list
               (cons
                (list
@@ -39,9 +39,18 @@
                 (line-number-at-pos))  tags-list))))
     tags-list))
 
+(defun scala-outline:forward-modifiers ()
+  "Move forward over any modifiers."
+  (save-match-data
+    (while (scala-syntax:looking-at scala-syntax:modifiers-re)
+      (scala-syntax:forward-sexp)
+      (when (scala-syntax:looking-at "[[]")
+        (forward-list)))))
+
 (defun scala-outline-tag-end (tag-re)
   (save-excursion
-    (scala-syntax:forward-modifiers)
+    (beginning-of-line)
+    (scala-outline:forward-modifiers)
     (re-search-forward tag-re nil t)
     (scala-syntax:forward-sexp)
     (point)))
@@ -58,7 +67,6 @@
                                      (car x)
                                      :value x))
                                   popup-list))
-
              (selected (popup-menu*
                         popup-items
                         :point (point)
@@ -69,6 +77,7 @@
                         :margin-right 1
                         :around nil
                         )))
+        (message (int-to-string menu-height))
         (goto-line (car (cdr selected)))
         (search-forward (car selected))
         (re-search-backward "[ \t]")

@@ -1,4 +1,4 @@
-Scala outline popup
+Scala outline popup [![MELPA](http://melpa.org/packages/scala-outline-popup-badge.svg)](http://melpa.org/#/scala-outline-popup)
 ===================
 
 ## Description

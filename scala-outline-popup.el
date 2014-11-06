@@ -33,7 +33,7 @@
         (tag-re "\\b\\(class\\|trait\\|object\\|type\\|def\\|implicit[ \t]+val\\)\\b"))
     (save-excursion
       (goto-char (point-max))
-      (while (re-search-backward (concat "^[^\n\\/*]*" tag-re "[ \t]+\\([^\n]+\\)$") nil t)
+      (while (re-search-backward (concat "^[^\n\\/*{]*" tag-re "[ \t]+\\([^\n]+\\)$") nil t)
         (setq tags-list
               (cons
                (list

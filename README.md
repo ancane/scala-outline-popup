@@ -14,17 +14,19 @@ Keeps indentation of all the items. List is filterable. `Enter` on an item jumps
 
 ## Installation
 
-```
-git clone git@github.com:ancane/scala-outline-popup.git
-```
-
-Put the following into your Emacs init file.
-
-```
-(add-to-list 'load-path "/path/to/scala-outline-popup/")
-(require 'scala-outline-popup)
-```
+From melpa.
 
 ## Usage
 
 Run from scala-mode: `M-x scala-outline-popup`
+
+## Keymap
+
+If you assign `scala-outline-popup` command a hotkey (ex., `C-e`), you may wan't same key to close the popup.
+This can be done by adding the key to `popup-isearch-keymap`:
+
+```
+(require 'popup)
+
+(define-key popup-isearch-keymap (kbd "C-e") 'popup-isearch-cancel)
+```

@@ -71,7 +71,6 @@
                         :margin-right 1
                         :around nil
                         )))
-        (message (int-to-string menu-height))
         (goto-line (car (cdr selected)))
         (search-forward (car selected))
         (re-search-backward "[ \t]")

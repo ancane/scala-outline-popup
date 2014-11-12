@@ -29,77 +29,80 @@
 (require 'popup)
 (require 'scala-mode2)
 
-(defvar scala-outline-popup-selection nil
+(defvar scala-outline-popup-select nil
   "Makes popup pre-select an item.
    First item is selected by default.
    Possible values are one of:
    'closest - an item, closest to the point
    'next    - successor item starting at point
-   'prev    - predecessor starting at point
-")
+   'prev    - predecessor starting at point")
 
-(setq scala-outline-popup-selection 'prev)
+(defconst scalop--def-re "\\b\\(class\\|trait\\|object\\|type\\|def\\|implicit[ \t]+\\(lazy[ \t]+\\)?val\\)\\b")
 
-(defconst scala-outline-popup-tag-re "\\b\\(class\\|trait\\|object\\|type\\|def\\|implicit[ \t]+\\(lazy[ \t]+\\)?val\\)\\b")
+(defconst scalop--line-def-re (concat "^[^\n\\/*{]*" scalop--def-re "[ \t]+\\([^\n]+\\)$"))
 
-(defconst scala-outline-popup-item-re (concat "^[^\n\\/*{]*" scala-outline-popup-tag-re "[ \t]+\\([^\n]+\\)$"))
-
-(defun scala-outline-popup-index (items selection)
-  (cond
-   ((eq selection 'closest)
-    (scala-popup-outline-item-index-by-line
-     items
-     (if
-         (save-excursion
-           (beginning-of-line)
-           (looking-at scala-outline-popup-item-re))
-         (line-number-at-pos)
-       (-min-by
-        (lambda (it other)
-          (>= (abs (- it (line-number-at-pos))) (abs (- other (line-number-at-pos))) ))
-        (list (scala-outline-popup-next-tag-line) (scala-outline-popup-prev-tag-line))))))
-   ((eq selection 'next)
-    (scala-popup-outline-item-index-by-line
-     items
-     (scala-outline-popup-next-tag-line)))
-   ((eq selection 'prev)
-    (scala-popup-outline-item-index-by-line
-     items
-     (scala-outline-popup-prev-tag-line)))
-   (t 0)))
-
-(defun scala-popup-outline-item-index-by-line (items line)
-  (-find-index (lambda (item) (eq line (car (cdr item)))) items))
-
-(defun scala-outline-popup-next-tag-line ()
+(defun scalop--looking-at-def ()
   (save-excursion
     (beginning-of-line)
-    (re-search-forward scala-outline-popup-item-re nil t)
-    (line-number-at-pos)))
+    (looking-at scalop--line-def-re)))
 
-(defun scala-outline-popup-prev-tag-line ()
+(defun scalop--def-index (items search)
+  (let ((linum (line-number-at-pos)))
+    (cond
+     ((eq search 'closest)
+      (scalop--def-index-by-line
+       items
+       (if (scalop--looking-at-def)
+           linum
+         (-min-by
+          (lambda (it other)
+            (>=
+             (abs (- it    linum))
+             (abs (- other linum))))
+          (list
+           (scalop--next-def-line)
+           (scalop--prev-def-line))))))
+     ((eq search 'next)
+      (scalop--def-index-by-line items (scalop--next-def-line)))
+     ((eq search 'prev)
+      (scalop--def-index-by-line items (scalop--prev-def-line)))
+     (t 0))))
+
+(defun scalop--def-index-by-line (items line)
+  (-find-index
+   (lambda (item) (eq line (car (cdr item))))
+   items))
+
+(defun scalop--next-def-line ()
   (save-excursion
     (beginning-of-line)
-    (re-search-backward scala-outline-popup-item-re nil t)
+    (re-search-forward scalop--line-def-re nil t)
     (line-number-at-pos)))
 
-(defun scala-outline-tags ()
-  (let ((tags-list nil))
+(defun scalop--prev-def-line ()
+  (save-excursion
+    (beginning-of-line)
+    (re-search-backward scalop--line-def-re nil t)
+    (line-number-at-pos)))
+
+(defun scalop--defs-list ()
+  (let ((defs-list nil))
     (save-excursion
       (goto-char (point-max))
-      (while (re-search-backward scala-outline-popup-item-re nil t)
-        (setq tags-list
+      (while (re-search-backward scalop--line-def-re nil t)
+        (setq defs-list
               (cons
                (list
-                (buffer-substring-no-properties (point) (scala-outline-tag-end))
-                (line-number-at-pos))  tags-list))))
-    tags-list))
+                (buffer-substring-no-properties (point) (scalop--def-end-pos))
+                (line-number-at-pos))
+               defs-list))))
+    defs-list))
 
-(defun scala-outline-tag-end ()
+(defun scalop--def-end-pos ()
   (save-excursion
     (beginning-of-line)
     (scala-syntax:forward-modifiers)
-    (re-search-forward scala-outline-popup-tag-re nil t)
+    (re-search-forward scalop--def-re nil t)
     (scala-syntax:forward-sexp)
     (point)))
 
@@ -108,17 +111,14 @@
   (interactive)
   (if (equal major-mode 'scala-mode)
       (let* (
-             (popup-list (scala-outline-tags))
+             (popup-list (scalop--defs-list))
              (menu-height (min 15 (length popup-list) (- (window-height) 4)))
-             (popup-items (mapcar (lambda (x)
-                                    (popup-make-item
-                                     (car x)
-                                     :value x))
+             (popup-items (mapcar (lambda (x) (popup-make-item
+                                               (car x)
+                                               :value x))
                                   popup-list))
-             (selection-index
-              (scala-outline-popup-index
-               popup-list
-               scala-outline-popup-selection))
+             (def-index
+              (scalop--def-index popup-list scala-outline-popup-select))
 
              (selected (popup-menu*
                         popup-items
@@ -128,7 +128,7 @@
                         :scroll-bar t
                         :margin-left 1
                         :margin-right 1
-                        :initial-index selection-index
+                        :initial-index def-index
                         :around nil
                         )))
         (goto-line (car (cdr selected)))

@@ -39,7 +39,7 @@
 
 (defconst scalop--def-re "\\b\\(class\\|trait\\|object\\|type\\|def\\|implicit[ \t]+\\(lazy[ \t]+\\)?val\\)\\b")
 
-(defconst scalop--line-def-re (concat "^[^\n\\/*{]*" scalop--def-re "[ \t]+\\([^\n]+\\)$"))
+(defconst scalop--line-def-re (concat "^[^\n\\/*{|\"]*" scalop--def-re "[ \t]+\\([^\n]+\\)$"))
 
 (defun scalop--looking-at-def ()
   (save-excursion
@@ -75,7 +75,7 @@
 
 (defun scalop--next-def-line ()
   (save-excursion
-    (beginning-of-line)
+    (end-of-line)
     (re-search-forward scalop--line-def-re nil t)
     (line-number-at-pos)))
 

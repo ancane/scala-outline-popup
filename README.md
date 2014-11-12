@@ -30,3 +30,13 @@ This can be done by adding the key to `popup-isearch-keymap`:
 
 (define-key popup-isearch-keymap (kbd "C-e") 'popup-isearch-cancel)
 ```
+
+## Initial item selection
+
+It's possible to have closest, previous or next definition selected, when you open the popup.
+
+```
+(require 'scala-outline-popup)
+
+(setq scala-outline-popup-select 'closest) // 'next or 'prev
+```

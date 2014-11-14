@@ -4,7 +4,7 @@
 
 ;; Author: Igor Shymko <igor.shimko@gmail.com>
 ;; Version: 0.1
-;; Package-Requires: ((dash "2.9.0") (popup "20141106.455") (scala-mode2 "0.22"))
+;; Package-Requires: ((dash "2.9.0") (popup "20141002.320") (scala-mode2 "0.22"))
 ;; Keywords: scala, structure, summary
 ;; URL: https://github.com/ancane/scala-outline-popup.el
 

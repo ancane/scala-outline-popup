@@ -59,13 +59,24 @@
             (>=
              (abs (- it    linum))
              (abs (- other linum))))
-          (list
-           (scalop--next-def-line)
-           (scalop--prev-def-line))))))
+          (-non-nil (list
+                     (scalop--next-def-line)
+                     (scalop--prev-def-line)
+                     (line-number-at-pos)))))))
      ((eq search 'next)
-      (scalop--def-index-by-line items (scalop--next-def-line)))
+      (scalop--def-index-by-line
+       items
+       (car (-non-nil
+             (list
+              (scalop--next-def-line)
+              (line-number-at-pos))))))
      ((eq search 'prev)
-      (scalop--def-index-by-line items (scalop--prev-def-line)))
+      (scalop--def-index-by-line
+       items
+       (car (-non-nil
+             (list
+              (scalop--prev-def-line)
+              (line-number-at-pos))))))
      (t 0))))
 
 (defun scalop--def-index-by-line (items line)
@@ -76,14 +87,14 @@
 (defun scalop--next-def-line ()
   (save-excursion
     (end-of-line)
-    (re-search-forward scalop--line-def-re nil t)
-    (line-number-at-pos)))
+    (when (re-search-forward scalop--line-def-re nil t)
+      (line-number-at-pos))))
 
 (defun scalop--prev-def-line ()
   (save-excursion
     (beginning-of-line)
-    (re-search-backward scalop--line-def-re nil t)
-    (line-number-at-pos)))
+    (when (re-search-backward scalop--line-def-re nil t)
+      (line-number-at-pos))))
 
 (defun scalop--defs-list ()
   (let ((defs-list nil))

@@ -67,29 +67,32 @@
        items
        (if (scalop--looking-at-def)
            linum
-         (-min-by
-          (lambda (it other)
-            (>=
-             (abs (- it    linum))
-             (abs (- other linum))))
-          (-non-nil (list
-                     (scalop--next-def-line)
-                     (scalop--prev-def-line)
-                     (line-number-at-pos)))))))
+         (let ((candidates (-non-nil (list
+                                      (scalop--next-def-line)
+                                      (scalop--prev-def-line)
+                                      ))))
+           (if candidates
+               (-min-by
+                (lambda (it other)
+                  (>=
+                   (abs (- it    linum))
+                   (abs (- other linum))))
+                candidates)
+             linum)))))
      ((eq search 'next)
       (scalop--def-index-by-line
        items
        (car (-non-nil
              (list
               (scalop--next-def-line)
-              (line-number-at-pos))))))
+              linum)))))
      ((eq search 'prev)
       (scalop--def-index-by-line
        items
        (car (-non-nil
              (list
               (scalop--prev-def-line)
-              (line-number-at-pos))))))
+              linum)))))
      (t 0))))
 
 (defun scalop--def-index-by-line (items line)

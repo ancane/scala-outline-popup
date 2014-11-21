@@ -3,8 +3,8 @@
 ;; Copyright (C) 2014 <igor.shimko@gmail.com>
 
 ;; Author: Igor Shymko <igor.shimko@gmail.com>
-;; Version: 0.1
-;; Package-Requires: ((dash "2.9.0") (popup "20141002.320") (scala-mode2 "0.22"))
+;; Version: 0.3.1
+;; Package-Requires: ((dash "2.9.0") (popup "0.5.1") (scala-mode2 "0.22"))
 ;; Keywords: scala, structure, summary
 ;; URL: https://github.com/ancane/scala-outline-popup.el
 
@@ -22,6 +22,18 @@
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;; Commentary:
+;;
+;; Opens a popup window containing classes, objects, types,
+;; defs and implicit vals from active scala file.
+;; Keeps indentation of all the items. List is filterable.
+;; `Enter` on an item jumps to it's position in file.
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 (eval-when-compile (require 'cl))
 

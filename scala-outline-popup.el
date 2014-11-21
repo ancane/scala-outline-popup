@@ -33,7 +33,8 @@
 ;; `Enter` on an item jumps to it's position in file.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;;
+;;; Code:
 
 (eval-when-compile (require 'cl))
 

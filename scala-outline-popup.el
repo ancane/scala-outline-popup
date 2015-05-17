@@ -149,11 +149,7 @@
                                    (goto-char (window-start))
                                    (line-number-at-pos)))
 
-             (x (+ (/ (- 70
-                       ;(window-width)
-                         (apply 'max (mapcar 'length popup-list)))
-                      2)
-                   (window-hscroll)))
+             (x 20)
 
              (y (+ (- scalop-line-number 2)
                    (/ (- (window-height) menu-height) 2)))

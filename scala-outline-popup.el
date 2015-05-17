@@ -144,19 +144,36 @@
                                                (car x)
                                                :value x))
                                   popup-list))
+
+             (scalop-line-number (save-excursion
+                                   (goto-char (window-start))
+                                   (line-number-at-pos)))
+
+             (x (+ (/ (- 70
+                       ;(window-width)
+                         (apply 'max (mapcar 'length popup-list)))
+                      2)
+                   (window-hscroll)))
+
+             (y (+ (- scalop-line-number 2)
+                   (/ (- (window-height) menu-height) 2)))
+
+             (menu-pos (save-excursion
+                         (artist-move-to-xy x y)
+                         (point)))
+
              (def-index
               (scalop--def-index popup-list scala-outline-popup-select))
 
              (selected (popup-menu*
                         popup-items
-                        :point (point)
+                        :point menu-pos
                         :height menu-height
                         :isearch t
                         :scroll-bar t
                         :margin-left 1
                         :margin-right 1
                         :initial-index def-index
-                        :around nil
                         )))
         (goto-line (car (cdr selected)))
         (search-forward (car selected))

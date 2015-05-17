@@ -50,7 +50,7 @@
    'next    - successor item starting at point
    'prev    - predecessor starting at point")
 
-(defconst scalop--def-re "\\b\\(class\\|trait\\|object\\|type\\|def\\|implicit[ \t]+\\(lazy[ \t]+\\)?val\\)\\b")
+(defconst scalop--def-re "\\b\\(class\\|trait\\|object\\|type\\|def\\)\\b")
 
 (defconst scalop--line-def-re (concat "^[^\n\\/*{|\"]*" scalop--def-re "[ \t]+\\([^\n]+\\)$"))
 

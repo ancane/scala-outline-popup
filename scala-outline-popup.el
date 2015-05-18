@@ -40,6 +40,7 @@
 
 (require 'dash)
 (require 'popup)
+(require 'artist)
 (require 'scala-mode2)
 
 (defvar scala-outline-popup-select nil
@@ -149,7 +150,10 @@
                                    (goto-char (window-start))
                                    (line-number-at-pos)))
 
-             (x 20)
+             (x (+ (/ (- fill-column
+                         (apply 'max (mapcar (lambda (x) (length (car x))) popup-list)))
+                      2)
+                   (window-hscroll)))
 
              (y (+ (- scalop-line-number 2)
                    (/ (- (window-height) menu-height) 2)))

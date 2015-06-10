@@ -3,8 +3,8 @@
 ;; Copyright (C) 2014 <igor.shimko@gmail.com>
 
 ;; Author: Igor Shymko <igor.shimko@gmail.com>
-;; Version: 0.3.4
-;; Package-Requires: ((dash "2.9.0") (popup "0.5.2") (scala-mode2 "0.22"))
+;; Version: 0.4
+;; Package-Requires: ((dash "2.9.0") (popup "0.5.3") (scala-mode2 "0.22") (flx-ido "0.5"))
 ;; Keywords: scala, structure, summary
 ;; URL: https://github.com/ancane/scala-outline-popup.el
 
@@ -42,6 +42,7 @@
 (require 'popup)
 (require 'artist)
 (require 'scala-mode2)
+(require 'flx-ido)
 
 (defvar scala-outline-popup-select nil
   "Makes popup pre-select an item.
@@ -50,6 +51,14 @@
    'closest - an item, closest to the point
    'next    - successor item starting at point
    'prev    - predecessor starting at point")
+
+(defvar scala-outline-popup-use-flx t
+  "Turns on flx matching")
+
+(defun scalop--filter ()
+  (if scala-outline-popup-use-flx
+      'scalop--flx-match
+    'popup-isearch-filter-list))
 
 (defconst scalop--def-re "\\b\\(class\\|trait\\|object\\|type\\|def\\)\\b")
 
@@ -134,6 +143,37 @@
     (scala-syntax:forward-sexp)
     (point)))
 
+(defun scalop--flx-match (query items)
+  (let ((flex-result (flx-flex-match query items)))
+    (let* ((matches (cl-loop for item in flex-result
+                             for string = (ido-name item)
+                             for score = (flx-score string query flx-file-cache)
+                             if score
+                             collect (cons item score)
+                             into matches
+                             finally return matches)))
+      (scalop--flx-decorate (delete-consecutive-dups
+                             (sort matches
+                                   (lambda (x y) (> (cadr x) (cadr y))))
+                             t)))
+    ))
+
+(defun scalop--flx-decorate (things)
+  (if flx-ido-use-faces
+      (let ((decorate-count (min ido-max-prospects
+                                 (length things))))
+        (nconc
+         (cl-loop for thing in things
+                  for i from 0 below decorate-count
+                  collect (scalop--propertize thing))
+         (mapcar 'car (nthcdr decorate-count things))))
+    (mapcar 'car things)))
+
+(defun scalop--propertize (thing)
+  (let* ((item-value (popup-item-value (car thing)))
+         (flx-propertized (flx-propertize (car thing) (cdr thing))))
+    (popup-item-propertize flx-propertized 'value item-value)))
+
 ;;;###autoload
 (defun scala-outline-popup ()
   (interactive)
@@ -141,9 +181,8 @@
       (let* (
              (popup-list (scalop--defs-list))
              (menu-height (min 15 (length popup-list) (- (window-height) 4)))
-             (popup-items (mapcar (lambda (x) (popup-make-item
-                                               (car x)
-                                               :value x))
+             (popup-items (mapcar (lambda (x)
+                                    (popup-make-item (car x) :value x))
                                   popup-list))
 
              (scalop-line-number (save-excursion
@@ -163,14 +202,15 @@
                          (point)))
 
              (def-index
-              (scalop--def-index popup-list scala-outline-popup-select))
+               (scalop--def-index popup-list scala-outline-popup-select))
 
              (selected (popup-menu*
                         popup-items
                         :point menu-pos
                         :height menu-height
                         :isearch t
-                        :scroll-bar t
+                        :isearch-filter (scalop--filter)
+                        :scroll-bar nil
                         :margin-left 1
                         :margin-right 1
                         :initial-index def-index

@@ -11,6 +11,7 @@ Keeps indentation of all the items. List is filterable. `Enter` on an item jumps
 
 * [popup](https://github.com/auto-complete/popup-el)
 * [scala-mode](https://github.com/hvesalai/scala-mode2)
+* [flx-ido](https://github.com/lewang/flx)
 
 ## Installation
 
@@ -40,3 +41,6 @@ It's possible to have closest, previous or next definition selected, when you op
 
 (setq scala-outline-popup-select 'closest) // 'next or 'prev
 ```
+
+## Fuzzy matching with flx
+It is enabled by default. Set `(setq scala-outline-popup-use-flx nil)` to disable it.

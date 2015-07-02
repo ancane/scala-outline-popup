@@ -181,11 +181,14 @@
          (flx-propertized (flx-propertize (car thing) (cdr thing))))
     (popup-item-propertize flx-propertized 'value item-value)))
 
-(defun scalop--pos ()
+(defun scalop--pos (popup-items)
   (if (eq scala-outline-popup-position 'point)
       (point)
-    (let ((x (+ (/ (- (if (eq scala-outline-popup-position 'center) (window-width) fill-column)
-                      (apply 'max (mapcar (lambda (z) (length (car z))) popup-list)))
+    (let* ((scalop-line-number (save-excursion
+                                (goto-char (window-start))
+                                (line-number-at-pos)))
+          (x (+ (/ (- (if (eq scala-outline-popup-position 'center) (window-width) fill-column)
+                      (apply 'max (mapcar (lambda (z) (length (car z))) popup-items)))
                    2)
                 (window-hscroll)))
           (y (+ (- scalop-line-number 2)
@@ -205,14 +208,11 @@
                 (popup-items (mapcar (lambda (x)
                                        (popup-make-item (car x) :value x))
                                      popup-list))
-                (scalop-line-number (save-excursion
-                                      (goto-char (window-start))
-                                      (line-number-at-pos)))
                 (def-index
                   (scalop--def-index popup-list scala-outline-popup-select))
                 (selected (popup-menu*
                            popup-items
-                           :point (scalop--pos)
+                           :point (scalop--pos popup-list)
                            :height menu-height
                            :isearch t
                            :isearch-filter (scalop--filter)

@@ -52,6 +52,13 @@
    'next    - successor item starting at point
    'prev    - predecessor starting at point")
 
+(defvar scala-outline-popup-position 'fill-column
+  "Defines popup position.
+   Possible values are one of:
+   'center - opens popup at window center
+   'fill-column - center relative to fill-column
+   'point - open popup at point")
+
 (defvar scala-outline-popup-use-flx t
   "Turns on flx matching")
 
@@ -174,51 +181,50 @@
          (flx-propertized (flx-propertize (car thing) (cdr thing))))
     (popup-item-propertize flx-propertized 'value item-value)))
 
+(defun scalop--pos ()
+  (if (eq scala-outline-popup-position 'point)
+      (point)
+    (let ((x (+ (/ (- (if (eq scala-outline-popup-position 'center) (window-width) fill-column)
+                      (apply 'max (mapcar (lambda (z) (length (car z))) popup-list)))
+                   2)
+                (window-hscroll)))
+          (y (+ (- scalop-line-number 2)
+                (/ (- (window-height) menu-height) 2))))
+      (save-excursion
+        (artist-move-to-xy x y)
+        (point)))))
+
 ;;;###autoload
 (defun scala-outline-popup ()
   (interactive)
   (if (equal major-mode 'scala-mode)
-      (let* (
-             (popup-list (scalop--defs-list))
-             (menu-height (min 15 (length popup-list) (- (window-height) 4)))
-             (popup-items (mapcar (lambda (x)
-                                    (popup-make-item (car x) :value x))
-                                  popup-list))
-
-             (scalop-line-number (save-excursion
-                                   (goto-char (window-start))
-                                   (line-number-at-pos)))
-
-             (x (+ (/ (- fill-column
-                         (apply 'max (mapcar (lambda (x) (length (car x))) popup-list)))
-                      2)
-                   (window-hscroll)))
-
-             (y (+ (- scalop-line-number 2)
-                   (/ (- (window-height) menu-height) 2)))
-
-             (menu-pos (save-excursion
-                         (artist-move-to-xy x y)
-                         (point)))
-
-             (def-index
-               (scalop--def-index popup-list scala-outline-popup-select))
-
-             (selected (popup-menu*
-                        popup-items
-                        :point menu-pos
-                        :height menu-height
-                        :isearch t
-                        :isearch-filter (scalop--filter)
-                        :scroll-bar nil
-                        :margin-left 1
-                        :margin-right 1
-                        :initial-index def-index
-                        )))
-        (goto-line (car (cdr selected)))
-        (search-forward (car selected))
-        (re-search-backward "[ \t]")
-        (forward-char))
+      (let ((popup-list (scalop--defs-list)))
+        (if (eq popup-list nil)
+            (message "No items to display")
+          (let* ((menu-height (min 15 (length popup-list) (- (window-height) 4)))
+                (popup-items (mapcar (lambda (x)
+                                       (popup-make-item (car x) :value x))
+                                     popup-list))
+                (scalop-line-number (save-excursion
+                                      (goto-char (window-start))
+                                      (line-number-at-pos)))
+                (def-index
+                  (scalop--def-index popup-list scala-outline-popup-select))
+                (selected (popup-menu*
+                           popup-items
+                           :point (scalop--pos)
+                           :height menu-height
+                           :isearch t
+                           :isearch-filter (scalop--filter)
+                           :scroll-bar nil
+                           :margin-left 1
+                           :margin-right 1
+                           :initial-index def-index
+                           )))
+            (goto-line (car (cdr selected)))
+            (search-forward (car selected))
+            (re-search-backward "[ \t]")
+            (forward-char))))
     (message "Not in scala mode")))
 
 (provide 'scala-outline-popup)

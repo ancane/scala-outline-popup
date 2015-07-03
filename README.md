@@ -31,16 +31,26 @@ This can be done by adding the key to `popup-isearch-keymap`:
 
 (define-key popup-isearch-keymap (kbd "C-e") 'popup-isearch-cancel)
 ```
+## Positioning
+`scala-outline-popup-position` variable controls popup horizontal positioning.
+Possible values are:
+
+*  'center - opens popup at window center
+*  'fill-column - center relative to fill-column (default setting)
+*  'point - open popup at point"
+
+```
+(setq scala-outline-popup-select 'point)
+```
 
 ## Initial item selection
 
 It's possible to have closest, previous or next definition selected, when you open the popup.
 
 ```
-(require 'scala-outline-popup)
-
 (setq scala-outline-popup-select 'closest) // 'next or 'prev
 ```
 
 ## Fuzzy matching with flx
-It is enabled by default. Set `(setq scala-outline-popup-use-flx nil)` to disable it.
+Fuzzy matching is enabled by default.
+Set `(setq scala-outline-popup-use-flx nil)` to disable it.
